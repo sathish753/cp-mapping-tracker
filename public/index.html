@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CP / Workstation Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===================== LOGIN VIEW ===================== -->
+<div id="loginView" class="login-screen">
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="brand-mark">CP</span>
+      <div>
+        <h1>Ledger</h1>
+        <p>Workstation &amp; seat allocation register</p>
+      </div>
+    </div>
+    <form id="loginForm">
+      <div class="input-group">
+        <label for="loginUsername">Username</label>
+        <input type="text" id="loginUsername" autocomplete="username" placeholder="Enter username" required>
+      </div>
+      <div class="input-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+      <p class="login-error" id="loginError" role="alert"></p>
+    </form>
+    <details class="login-hint">
+      <summary>Demo credentials guide</summary>
+      <table class="hint-table">
+        <tr><td>Admin</td><td><code>admin</code></td><td><code>admin123</code></td></tr>
+        <tr><td>OM</td><td><code>om1</code></td><td><code>om123</code></td></tr>
+        <tr><td>TL</td><td><code>tl1</code></td><td><code>tl123</code></td></tr>
+      </table>
+    </details>
+  </div>
+</div>
+
+<!-- ===================== APP SHELL ===================== -->
+<div id="appView" class="app-shell hidden">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-mark">CP</span>
+      <div>
+        <strong>Ledger</strong>
+        <small>Workspace register</small>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-btn active" data-view="records">
+        <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <span>Records</span>
+      </button>
+      <button class="nav-btn om-tl-only" data-view="myalloc">
+        <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <span>My Allocations</span>
+      </button>
+      <button class="nav-btn admin-only" data-view="dashboard">
+        <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        <span>Change Dashboard</span>
+      </button>
+      <button class="nav-btn admin-only" data-view="users">
+        <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+        <span>Manage Logins</span>
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="who">
+        <strong id="whoName"></strong>
+        <span class="role-pill" id="whoRole"></span>
+      </div>
+      <button id="logoutBtn" class="btn btn-ghost btn-block">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <!-- ---------- RECORDS VIEW ---------- -->
+    <section id="view-records" class="view">
+      <header class="view-head">
+        <div>
+          <h2>Records Management</h2>
+          <p class="muted">Live overview of employee, workstation, and CP assignments.</p>
+        </div>
+        <div class="view-head-actions">
+          <div class="select-wrapper">
+            <select id="shiftFilter" aria-label="Filter by shift">
+              <option value="">All shifts</option>
+            </select>
+          </div>
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="search" id="recordSearch" placeholder="Search name, ID, CP, block…">
+          </div>
+          <button id="addRecordBtn" class="btn btn-primary admin-only">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New record
+          </button>
+        </div>
+      </header>
+      <div class="table-wrap card">
+        <table id="recordsTable">
+          <thead>
+            <tr>
+              <th>Employee Name</th>
+              <th>Employee ID</th>
+              <th>Block</th>
+              <th>Workstation No.</th>
+              <th>Shift</th>
+              <th>CP Name</th>
+              <th>Process</th>
+              <th>Client</th>
+              <th>TL Name</th>
+              <th>OM Name</th>
+              <th>Moves</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="recordsBody"></tbody>
+        </table>
+        <div id="recordsEmpty" class="empty-state hidden">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <p>No records found matching your filters.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- MY ALLOCATIONS VIEW ---------- -->
+    <section id="view-myalloc" class="view hidden">
+      <header class="view-head">
+        <div>
+          <h2>My Allocations</h2>
+          <p class="muted" id="myallocSubtitle">Workstations currently allocated to your group.</p>
+        </div>
+      </header>
+
+      <div class="stat-grid" id="myallocStatGrid">
+        <div class="stat-card">
+          <span class="stat-num" id="myallocTotal">0</span>
+          <span class="stat-label">Total allocated</span>
+        </div>
+        <div class="stat-card success">
+          <span class="stat-num" id="myallocMapped">0</span>
+          <span class="stat-label">Mapped seats</span>
+        </div>
+        <div class="stat-card warning">
+          <span class="stat-num" id="myallocUnmapped">0</span>
+          <span class="stat-label">Unmapped seats</span>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="panel card">
+          <h3>Allocations by shift</h3>
+          <div id="myallocShiftBars" class="bar-list"></div>
+        </div>
+        <div class="panel card">
+          <h3>Allocations by block</h3>
+          <div id="myallocBlockBars" class="bar-list"></div>
+        </div>
+      </div>
+
+      <div class="table-wrap card">
+        <table id="myallocTable">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Employee Name</th>
+              <th>Employee ID</th>
+              <th>Block</th>
+              <th>Workstation No.</th>
+              <th>Shift</th>
+              <th>CP Name</th>
+              <th>Process</th>
+              <th>Client</th>
+              <th>TL Name</th>
+              <th>OM Name</th>
+            </tr>
+          </thead>
+          <tbody id="myallocBody"></tbody>
+        </table>
+        <p id="myallocEmpty" class="empty-state hidden">Nothing is allocated to you yet.</p>
+      </div>
+    </section>
+
+    <!-- ---------- DASHBOARD VIEW ---------- -->
+    <section id="view-dashboard" class="view hidden">
+      <header class="view-head">
+        <div>
+          <h2>Change Dashboard &amp; Analytics</h2>
+          <p class="muted">Real-time audit log tracking state interchanges across operational metrics.</p>
+        </div>
+        <div class="view-head-actions filter-actions">
+          <div class="date-filter-group single-line-filter">
+            <label class="muted">From <input type="datetime-local" id="dashDateFrom" class="input-control"></label>
+            <label class="muted">To <input type="datetime-local" id="dashDateTo" class="input-control"></label>
+            <button type="button" class="btn btn-ghost" id="dashDateApply">Apply</button>
+            <button type="button" class="btn btn-ghost" id="dashDateClear">Clear</button>
+            <button type="button" class="btn btn-primary" id="quickViewBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              Quick View
+            </button>
+          </div>
+        </div>
+      </header>
+      <div class="banner-note" id="dashRangeNote"></div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <span class="stat-num" id="statTotalRecords">0</span>
+          <span class="stat-label">Total Workstations</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" id="statTrackedChanges">0</span>
+          <span class="stat-label">Tracked interchanges</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" id="statChangesToday">0</span>
+          <span class="stat-label">Changes today</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" id="statTotalChanges">0</span>
+          <span class="stat-label">All changes logged</span>
+        </div>
+      </div>
+
+      <div class="panel card mb-20">
+        <h3>Employee CP Swap History Explorer</h3>
+        <p class="muted mb-16">Look up historical transitions by employee name or ID with complete chronological context.</p>
+        <form id="employeeHistoryForm" class="inline-form">
+          <input type="text" id="employeeHistoryQuery" class="input-control" placeholder="Search employee name or ID…" style="flex:1; min-width:240px;">
+          <button type="submit" class="btn btn-primary">Search history</button>
+        </form>
+        <div id="employeeHistoryResults" class="employee-history-results"></div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="panel card">
+          <h3>Interchanges by field</h3>
+          <div id="fieldBars" class="bar-list"></div>
+        </div>
+        <div class="panel card">
+          <h3>Top 5 Operations Managers</h3>
+          <div id="topOMs" class="chip-list"></div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="panel card">
+          <h3>Mapped vs Unmapped Distribution</h3>
+          <p class="muted mb-16">Indicates seats lacking assigned Employee details.</p>
+          <div class="pie-wrap">
+            <canvas id="mappingPieChart" width="200" height="200"></canvas>
+            <div id="mappingPieLegend" class="pie-legend"></div>
+          </div>
+        </div>
+        <div class="panel card">
+          <h3>OM-Wise Deep Dive</h3>
+          <div class="search-dropdown mb-16">
+            <input type="search" id="omMappingSearch" class="input-control w-full" placeholder="Search specific OM…" autocomplete="off">
+            <div id="omMappingSuggestions" class="search-suggestions hidden"></div>
+          </div>
+          <div class="pie-wrap">
+            <canvas id="omPieChart" width="200" height="200"></canvas>
+            <div id="omPieLegend" class="pie-legend"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel card mb-20" id="omMappingDetailsPanel" style="display:none;">
+        <h3 id="omMappingDetailsTitle" class="mb-16">OM mapping details</h3>
+        <div class="stat-grid mb-20" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="stat-card"><span class="stat-num" id="omTotalThisMonth">0</span><span class="stat-label">CP mappings this month</span></div>
+          <div class="stat-card"><span class="stat-num" id="omTotalAllTime">0</span><span class="stat-label">CP mappings all-time</span></div>
+        </div>
+        <div class="eh-section-label">CP mapping count per employee — this month</div>
+        <div id="omEmployeeCountsMonth" class="chip-list mb-16"></div>
+        <div class="eh-section-label">CP mapping count per employee — all-time</div>
+        <div id="omEmployeeCounts" class="chip-list mb-16"></div>
+        <div class="eh-section-label">Date-wise mapping activity by TL</div>
+        <p class="muted mb-12" id="omDateTlNote">Tracks seat changes, mapping creations, or ID updates attributed to TL groups.</p>
+        <div class="quick-view-note mb-12">
+          <div class="inline-form align-center">
+            <label class="muted">From <input type="datetime-local" id="omDateFrom" class="input-control"></label>
+            <label class="muted">To <input type="datetime-local" id="omDateTo" class="input-control"></label>
+            <button type="button" class="btn btn-ghost" id="omDateFilterApply">Apply</button>
+            <button type="button" class="btn btn-ghost" id="omDateFilterClear">Clear</button>
+          </div>
+        </div>
+        <div id="omTlLegend" class="pie-legend mb-12"></div>
+        <div id="omDateTlChart" class="mb-16"></div>
+        <div class="table-wrap mb-20">
+          <table>
+            <thead><tr><th>Date</th><th>TL Name</th><th>Mapped count</th></tr></thead>
+            <tbody id="omDateTlBody"></tbody>
+          </table>
+        </div>
+        <div class="dash-grid">
+          <div>
+            <div class="eh-section-label">Mapped Entries</div>
+            <div class="table-wrap"><table><thead><tr><th>S.No</th><th>Employee</th><th>ID</th><th>Block</th><th>WS</th><th>CP</th></tr></thead><tbody id="omMappedBody"></tbody></table></div>
+          </div>
+          <div>
+            <div class="eh-section-label">Unmapped Entries</div>
+            <div class="table-wrap"><table><thead><tr><th>S.No</th><th>Employee</th><th>ID</th><th>Block</th><th>WS</th><th>CP</th></tr></thead><tbody id="omUnmappedBody"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel card mb-20">
+        <h3>Team Lead (TL) Wise Mapping Analysis</h3>
+        <div class="search-dropdown mb-16" style="max-width:400px;">
+          <input type="search" id="tlMappingSearch" class="input-control w-full" placeholder="Search TL name…" autocomplete="off">
+          <div id="tlMappingSuggestions" class="search-suggestions hidden"></div>
+        </div>
+        <div class="pie-wrap">
+          <canvas id="tlPieChart" width="200" height="200"></canvas>
+          <div id="tlPieLegend" class="pie-legend"></div>
+        </div>
+      </div>
+
+      <div class="panel card mb-20" id="tlMappingDetailsPanel" style="display:none;">
+        <h3 id="tlMappingDetailsTitle" class="mb-16">TL mapping details</h3>
+        <div class="stat-grid mb-20" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="stat-card"><span class="stat-num" id="tlTotalThisMonth">0</span><span class="stat-label">CP mappings this month</span></div>
+          <div class="stat-card"><span class="stat-num" id="tlTotalAllTime">0</span><span class="stat-label">CP mappings all-time</span></div>
+        </div>
+        <div class="eh-section-label">CP mapping count per employee — this month</div>
+        <div id="tlEmployeeCountsMonth" class="chip-list mb-16"></div>
+        <div class="eh-section-label">CP mapping count per employee — all-time</div>
+        <div id="tlEmployeeCounts" class="chip-list mb-16"></div>
+        <div class="dash-grid">
+          <div>
+            <div class="eh-section-label">Mapped</div>
+            <div class="table-wrap"><table><thead><tr><th>S.No</th><th>Employee</th><th>ID</th><th>Block</th><th>WS</th><th>CP</th></tr></thead><tbody id="tlMappedBody"></tbody></table></div>
+          </div>
+          <div>
+            <div class="eh-section-label">Unmapped</div>
+            <div class="table-wrap"><table><thead><tr><th>S.No</th><th>Employee</th><th>ID</th><th>Block</th><th>WS</th><th>CP</th></tr></thead><tbody id="tlUnmappedBody"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel card mb-20">
+        <h3>Individual Employee Mobility Metrics</h3>
+        <p class="muted mb-16">Analyze total workstation transitions for specific staff members.</p>
+        <div class="search-dropdown mb-16" style="max-width:400px;">
+          <input type="search" id="employeeMappingSearch" class="input-control w-full" placeholder="Search employee name or ID…" autocomplete="off">
+          <div id="employeeMappingSuggestions" class="search-suggestions hidden"></div>
+        </div>
+        <div id="employeeMappingResult"></div>
+      </div>
+
+      <div class="panel card">
+        <div class="panel-head mb-16">
+          <h3>Global Audit Trail</h3>
+          <span class="muted">Block &amp; Workstation reassignment history</span>
+        </div>
+        <div class="table-wrap">
+          <table class="audit-table">
+            <thead>
+              <tr><th>S.No</th><th>Employee (Name - ID)</th><th>Previous Location</th><th></th><th>New Location</th><th>Changed By</th><th>Timestamp</th></tr>
+            </thead>
+            <tbody id="auditBody"></tbody>
+          </table>
+        </div>
+        <p id="auditEmpty" class="empty-state hidden">No reassignments logged yet.</p>
+      </div>
+    </section>
+
+    <!-- ---------- USERS VIEW ---------- -->
+    <section id="view-users" class="view hidden">
+      <header class="view-head">
+        <div>
+          <h2>Manage System Logins</h2>
+          <p class="muted">Provision credentials and control role access permissions.</p>
+        </div>
+      </header>
+      <div class="panel card form-panel mb-20">
+        <h3 class="mb-8">Create New User Login</h3>
+        <p class="muted mb-16">Ensure <strong>Display Name</strong> matches record definitions (e.g. <code>OM101</code>) for proper ownership scope.</p>
+        <form id="userForm" class="inline-form">
+          <input type="text" id="newUsername" class="input-control" placeholder="Username" required>
+          <input type="text" id="newDisplayName" class="input-control" placeholder="Display name">
+          <input type="password" id="newPassword" class="input-control" placeholder="Password" required>
+          <div class="select-wrapper">
+            <select id="newRole" class="input-control">
+              <option value="tl">TL</option>
+              <option value="om">OM</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Create login</button>
+        </form>
+      </div>
+      <div class="table-wrap card">
+        <table>
+          <thead><tr><th>Username</th><th>Display Name</th><th>Role Assignment</th><th class="text-right">Actions</th></tr></thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===================== RECORD MODAL ===================== -->
+<div id="recordModal" class="modal-backdrop hidden">
+  <div class="modal card animate-scale">
+    <h3 id="modalTitle" class="mb-16">Edit record</h3>
+    <form id="recordForm" class="record-form mb-16"></form>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="modalCancel">Cancel</button>
+      <button type="submit" form="recordForm" class="btn btn-primary" id="modalSave">Save record</button>
+    </div>
+    <p class="modal-error" id="modalError" role="alert"></p>
+  </div>
+</div>
+
+<!-- ===================== QUICK VIEW MODAL ===================== -->
+<div id="quickViewModal" class="modal-backdrop hidden">
+  <div class="modal modal-wide card animate-scale">
+    <div class="quick-view-note mb-12">
+      <h3 style="margin:0;">Quick View — OM / TL / Block Matrix</h3>
+      <button type="button" class="btn btn-ghost" id="quickViewClose">Close</button>
+    </div>
+    <p class="muted mb-16">Live enterprise workstation allocation matrix (Auto-refreshes every 10 seconds).</p>
+    <div class="table-wrap">
+      <table class="quick-view-table">
+        <thead><tr><th>OM Name</th><th>TL Name</th><th>Mapped Seats</th><th>Unmapped Seats</th></tr></thead>
+        <tbody id="quickViewBody"></tbody>
+      </table>
+    </div>
+    <p class="muted" id="quickViewUpdated" style="margin-top:12px; text-align:right; font-size:12px;"></p>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

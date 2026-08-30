@@ -1,0 +1,5 @@
+
+> cp-tracker@1.0.0 start
+> node server.js
+
+CP Tracker running at http://localhost:3001

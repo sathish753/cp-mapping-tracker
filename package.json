@@ -1,0 +1,14 @@
+{
+  "name": "cp-tracker",
+  "version": "1.0.0",
+  "description": "CP / Workstation Asset & Record Tracker with Admin, OM and TL logins. No external database - all data is stored in a local JSON file on the server.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0"
+  }
+}

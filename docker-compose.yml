@@ -1,0 +1,25 @@
+services:
+  cp-tracker:
+    build: .
+    image: cp-tracker:latest
+    container_name: cp-tracker
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      # override this with a long random string in real deployments, e.g.:
+      #   openssl rand -hex 32
+      SESSION_SECRET: "change-this-to-a-long-random-string"
+      PORT: "3001"
+      # Only uncomment NODE_ENV=production once this sits behind an HTTPS
+      # reverse proxy (nginx/Caddy/Traefik). The app marks its session
+      # cookie "secure" in production mode, which browsers refuse to send
+      # back over plain HTTP — logins would silently stop working.
+      # NODE_ENV: "production"
+    volumes:
+      # named volume keeps data/db.json (the entire database) outside the
+      # container so it survives rebuilds/redeploys
+      - cp-tracker-data:/app/data
+
+volumes:
+  cp-tracker-data:
